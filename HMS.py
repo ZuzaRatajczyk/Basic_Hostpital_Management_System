@@ -1,6 +1,7 @@
 import mysql.connector
 from getpass import getpass
 from operator import itemgetter
+import exceptions
 
 
 def create_db_connection():
@@ -61,9 +62,14 @@ def show_patient_data(db_cursor, patient_data_list):
 
 def find_patient():
     db, db_cursor = create_db_connection()
-    personal_id_val = input("Patients' personal id: ")
-    found_patient = find_item_in_db(db_cursor, "patients", "personal_id", int(personal_id_val))
-    show_patient_data(db_cursor, found_patient[0])
+    try:
+        personal_id_val = input("Patients' personal id: ")
+        found_patient = find_item_in_db(db_cursor, "patients", "personal_id", int(personal_id_val))
+        show_patient_data(db_cursor, found_patient[0])
+    except IndexError:
+        print("Patient not found.")
+    except ValueError:
+        print("Patient not found. Patients' personal id needs to be numeric value.")
     close_db_connection(db, db_cursor)
 
 
@@ -91,20 +97,32 @@ def close_db_connection(db, db_cursor):
     db_cursor.close()
 
 
-def check_app_status():   # need to add exception handling
-    status = input("Do you want to perform next action in the HMS system? y/n: ")
-    if status in ["y", "Y", "Yes", "YES", "yes"]:
-        return "running"
-    else:
-        return "exit"
+def check_app_status():
+    while True:  # running while status is not returned
+        try:
+            status = input("Do you want to perform next action in the HMS system? y/n: ")
+            if status in ["y", "Y", "Yes", "YES", "yes"]:
+                return "running"
+            elif status in ["n", "N", "No", "NO", "no"]:
+                return "exit"
+            else:
+                raise exceptions.InvalidInputValue
+        except exceptions.InvalidInputValue:
+            print("Incorrect value. Please respond with 'yes' or 'no' (or 'y' or 'n')")
 
 
 def check_module_status(module_name):
-    status = input(f"Do you want to perform next action in {module_name} module? y/n: ")
-    if status in ["y", "Y", "Yes", "YES", "yes"]:
-        return "continue"
-    else:
-        return "exit"
+    while True:  # running while status is not returned
+        try:
+            status = input(f"Do you want to perform next action in {module_name} module? y/n: ")
+            if status in ["y", "Y", "Yes", "YES", "yes"]:
+                return "continue"
+            elif status in ["n", "N", "No", "NO", "no"]:
+                return "exit"
+            else:
+                raise exceptions.InvalidInputValue
+        except exceptions.InvalidInputValue:
+            print("Incorrect value. Please respond with 'yes' or 'no' (or 'y' or 'n')")
 
 
 def choose_action():
@@ -131,7 +149,6 @@ def choose_action():
             if user_action == 3:
                 edit_patient()
                 module_status = check_module_status(module_name)
-
 
 
 def main():
