@@ -1,7 +1,7 @@
 import mysql.connector
 from getpass import getpass
-from operator import itemgetter
 import exceptions
+import patient_management
 
 
 def create_db_connection():
@@ -19,30 +19,6 @@ def create_db_connection():
         return hms_db, hms_db.cursor()
 
 
-def get_patient_data_from_user():
-    data_keys = ["name", "surname", "personal_id", "age", "ward", "room_num", "bed_num"]
-    data_values = []
-    for key in data_keys:
-        data_values.append(input(f"Patient {key}: "))   # enter without value will add empty string to dict
-    return dict(zip(data_keys, data_values))
-
-
-def add_patient_to_db(db, db_cursor, patient_data):
-    insert_query = "INSERT INTO patients (name, surname, personal_id, age, ward, room_num, bed_num) " \
-                   "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    patient_info = itemgetter("name", "surname", "personal_id", "age", "ward", "room_num", "bed_num")(patient_data)   # itemgetter return  dict values as tuple
-    db_cursor.execute(insert_query, patient_info)
-    db.commit()
-    print("Patient registered")
-
-
-def register_patient():
-    db, db_cursor = create_db_connection()  # db connection per action
-    dict_of_user_data = get_patient_data_from_user()
-    add_patient_to_db(db, db_cursor, dict_of_user_data)
-    close_db_connection(db, db_cursor)    # db connection per action
-
-
 def find_item_in_db(db_cursor, table, column_name, value):
     select_query = f"SELECT * FROM {table} WHERE {column_name} = %s"
     item_params = (value,)
@@ -51,45 +27,11 @@ def find_item_in_db(db_cursor, table, column_name, value):
     return item
 
 
-def show_patient_data(db_cursor, patient_data_list):
-    column_num = 1
-    for column_name, patient_data in zip(db_cursor.column_names, patient_data_list):
-        print(column_num, end=". ")
-        print(*column_name.capitalize().split("_"), end=": ")  # * is used because split is returning list
-        print(patient_data)
-        column_num += 1
-
-
-def find_patient():
-    db, db_cursor = create_db_connection()
-    try:
-        personal_id_val = input("Patients' personal id: ")
-        found_patient = find_item_in_db(db_cursor, "patients", "personal_id", int(personal_id_val))
-        show_patient_data(db_cursor, found_patient[0])
-    except IndexError:
-        print("Patient not found.")
-    except ValueError:
-        print("Patient not found. Patients' personal id needs to be numeric value.")
-    close_db_connection(db, db_cursor)
-
-
 def edit_db_data(db, db_cursor, table, column_to_edit, where_column, where_val, new_val):
     update_query = f"UPDATE {table} SET {column_to_edit} = %s WHERE {where_column} = %s"
     item_params = (new_val, where_val)
     db_cursor.execute(update_query, item_params)
     db.commit()
-
-
-def edit_patient():
-    db, db_cursor = create_db_connection()
-    personal_id = input("Patients' personal id: ")
-    found_patient = find_item_in_db(db_cursor, "patients", "personal_id", int(personal_id))
-    show_patient_data(db_cursor, found_patient[0])
-    column_to_edit = input("Choose number of parameter which you want to edit: ")
-    name_of_col_to_edit = db_cursor.column_names[int(column_to_edit) - 1]
-    new_value = input(f"Provide new value for patients' {name_of_col_to_edit} : ")
-    edit_db_data(db, db_cursor, "patients", name_of_col_to_edit, "personal_id", personal_id, new_value)
-    close_db_connection(db, db_cursor)
 
 
 def close_db_connection(db, db_cursor):
@@ -141,13 +83,13 @@ def choose_action():
                 print(submodule_num, submodule, sep=". ")
             user_action = int(input())
             if user_action == 1:
-                register_patient()
+                patient_management.register_patient()
                 module_status = check_module_status(module_name)
             if user_action == 2:
-                find_patient()
+                patient_management.find_patient()
                 module_status = check_module_status(module_name)
             if user_action == 3:
-                edit_patient()
+                patient_management.edit_patient()
                 module_status = check_module_status(module_name)
 
 
