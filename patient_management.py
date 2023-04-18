@@ -1,5 +1,6 @@
 from operator import itemgetter
 import HMS
+import database_connection
 
 
 def get_patient_data_from_user():
@@ -20,10 +21,10 @@ def add_patient_to_db(db, db_cursor, patient_data):
 
 
 def register_patient():
-    db, db_cursor = HMS.create_db_connection()  # db connection per action
+    db, db_cursor = database_connection.create_db_connection()  # db connection per action
     dict_of_user_data = get_patient_data_from_user()
     add_patient_to_db(db, db_cursor, dict_of_user_data)
-    HMS.close_db_connection(db, db_cursor)    # db connection per action
+    database_connection.close_db_connection(db, db_cursor)    # db connection per action
 
 
 def show_patient_data(db_cursor, patient_data_list):
@@ -36,7 +37,7 @@ def show_patient_data(db_cursor, patient_data_list):
 
 
 def find_patient():
-    db, db_cursor = HMS.create_db_connection()
+    db, db_cursor = database_connection.create_db_connection()
     try:
         personal_id_val = input("Patients' personal id: ")
         found_patient = HMS.find_item_in_db(db_cursor, "patients", "personal_id", int(personal_id_val))
@@ -45,11 +46,11 @@ def find_patient():
         print("Patient not found.")
     except ValueError:
         print("Patient not found. Patients' personal id needs to be numeric value.")
-    HMS.close_db_connection(db, db_cursor)
+    database_connection.close_db_connection(db, db_cursor)
 
 
 def edit_patient():
-    db, db_cursor = HMS.create_db_connection()
+    db, db_cursor = database_connection.create_db_connection()
     personal_id = input("Patients' personal id: ")
     found_patient = HMS.find_item_in_db(db_cursor, "patients", "personal_id", int(personal_id))
     show_patient_data(db_cursor, found_patient[0])
@@ -57,4 +58,4 @@ def edit_patient():
     name_of_col_to_edit = db_cursor.column_names[int(column_to_edit) - 1]
     new_value = input(f"Provide new value for patients' {name_of_col_to_edit} : ")
     HMS.edit_db_data(db, db_cursor, "patients", name_of_col_to_edit, "personal_id", personal_id, new_value)
-    HMS.close_db_connection(db, db_cursor)
+    database_connection.close_db_connection(db, db_cursor)

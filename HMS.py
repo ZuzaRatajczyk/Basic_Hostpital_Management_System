@@ -1,22 +1,6 @@
-import mysql.connector
-from getpass import getpass
+import database_management
 import exceptions
 import patient_management
-
-
-def create_db_connection():
-    print("Creating conntection to hospital database...")
-    try:
-        hms_db = mysql.connector.connect(
-            host="127.0.0.1",
-            user=input("Enter username: "),
-            password=getpass("Enter password: "),
-            database="basic_hms"
-        )
-    except mysql.connector.Error as e:
-        print(e)
-    else:
-        return hms_db, hms_db.cursor()
 
 
 def find_item_in_db(db_cursor, table, column_name, value):
@@ -32,11 +16,6 @@ def edit_db_data(db, db_cursor, table, column_to_edit, where_column, where_val, 
     item_params = (new_val, where_val)
     db_cursor.execute(update_query, item_params)
     db.commit()
-
-
-def close_db_connection(db, db_cursor):
-    db.close()
-    db_cursor.close()
 
 
 def check_app_status():
@@ -94,6 +73,10 @@ def choose_action():
 
 
 def main():
+    db_exist = database_management.check_if_db_exists()
+    if not db_exist:
+        print("Hospital database doesn't exist. Creating 'basic_hms' database...")
+        database_management.create_db()
     app_status = "running"
     while app_status == "running":
         choose_action()
