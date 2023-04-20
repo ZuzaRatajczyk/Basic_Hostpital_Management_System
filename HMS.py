@@ -77,6 +77,7 @@ def main():
     if not db_exist:
         print("Hospital database doesn't exist. Creating 'basic_hms' database...")
         database_management.create_db()
+    database_management.create_tables_if_not_exists()
     app_status = "running"
     while app_status == "running":
         choose_action()
