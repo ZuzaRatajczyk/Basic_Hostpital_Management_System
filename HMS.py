@@ -1,3 +1,4 @@
+import database_connection
 import database_management
 import exceptions
 import patient_management
@@ -73,8 +74,8 @@ def choose_action():
 
 
 def main():
-    db_exist = database_management.check_if_db_exists()
-    if not db_exist:
+    db_connection = database_connection.create_db_connection()
+    if not db_connection:
         print("Hospital database doesn't exist. Creating 'basic_hms' database...")
         database_management.create_db()
     database_management.create_tables_if_not_exists()
