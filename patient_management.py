@@ -1,10 +1,13 @@
 from operator import itemgetter
 import HMS
 import database_connection
+from datetime import date
+from exceptions import InvalidPersonalId
+from dateutil.relativedelta import relativedelta
 
 
 def get_patient_data_from_user():
-    data_keys = ["name", "surname", "personal_id", "age", "ward", "room_num", "bed_num"]
+    data_keys = ["name", "surname", "personal_id", "ward", "main_doctor", "room_num", "bed_num"]
     data_values = []
     for key in data_keys:
         data_values.append(input(f"Patient {key}: "))   # enter without value will add empty string to dict
@@ -12,12 +15,39 @@ def get_patient_data_from_user():
 
 
 def add_patient_to_db(db, db_cursor, patient_data):
-    insert_query = "INSERT INTO patients (name, surname, personal_id, age, ward, room_num, bed_num) " \
+    insert_query = "INSERT INTO patients (name, surname, personal_id, ward, main_doctor, room_num, bed_num) " \
                    "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    patient_info = itemgetter("name", "surname", "personal_id", "age", "ward", "room_num", "bed_num")(patient_data)  # itemgetter return  dict values as tuple
+    insert_age = f"UPDATE patients SET age = %s WHERE personal_id = {patient_data['personal_id']}"
+    patient_info = itemgetter("name", "surname", "personal_id", "ward", "main_doctor", "room_num", "bed_num")(patient_data)  # itemgetter return  dict values as tuple
+    age = calc_patients_age(patient_data["personal_id"])
     db_cursor.execute(insert_query, patient_info)
+    db_cursor.execute(insert_age, (age,))
     db.commit()
     print("Patient registered")
+
+
+def calc_patients_age(personal_id):
+    current_date = date.today()
+    day_of_birth = int(personal_id[4:6])
+    pid_month_of_birth = int(personal_id[2:4])
+    try:
+        month_of_birth, century  = calc_month_and_century(pid_month_of_birth)
+    except InvalidPersonalId:
+        print("Invalid personal id value. Couldn't calculate patients' age.")
+    else:
+        year_of_birth = century + int(personal_id[0:2])
+        date_of_birth = date(year_of_birth, month_of_birth, day_of_birth)
+        age = relativedelta(current_date, date_of_birth).years
+        return age
+
+
+def calc_month_and_century(pid_month):
+    n_month = 12
+    offset_century_map = [(0, 1900), (20, 2000), (40, 2100), (60, 2200), (80, 1800)]
+    for (off, cent) in offset_century_map:
+        if off < pid_month <= off + n_month:
+            return pid_month - off, cent
+    raise InvalidPersonalId
 
 
 def register_patient():

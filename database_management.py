@@ -12,8 +12,8 @@ def create_db():
 def create_tables_if_not_exists():
     db_server, db_cursor = database_connection.create_db_connection()
     patients_table = "CREATE TABLE IF NOT EXISTS patients " \
-                     "(patient_id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), surname VARCHAR(255), " \
-                     "age INT, ward VARCHAR(255), room_num INT, bed_num INT, personal_id BIGINT)"
+                     "(patient_id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), surname VARCHAR(255), age INT, " \
+                     "ward VARCHAR(255), room_num INT, bed_num INT, main_doctor VARCHAR(255), personal_id BIGINT)"
     doctors_table = "CREATE TABLE IF NOT EXISTS doctors " \
                     "(doctor_id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), surname VARCHAR(255), ward INT)"
     wards_table = "CREATE TABLE IF NOT EXISTS wards " \
