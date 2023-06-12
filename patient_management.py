@@ -75,10 +75,16 @@ def find_patient(db_cursor):
 
 
 def edit_patient(db, db_cursor):
-    personal_id = input("Patients' personal id: ")
-    found_patient = HMS.find_item_in_db(db_cursor, "patients", "personal_id", int(personal_id))
-    show_patient_data(db_cursor, found_patient[0])
-    column_to_edit = input("Choose number of parameter which you want to edit: ")
-    name_of_col_to_edit = db_cursor.column_names[int(column_to_edit) - 1]
-    new_value = input(f"Provide new value for patients' {name_of_col_to_edit} : ")
-    HMS.edit_db_data(db, db_cursor, "patients", name_of_col_to_edit, "personal_id", personal_id, new_value)
+    try:
+        personal_id = input("Patients' personal id: ")
+        found_patient = HMS.find_item_in_db(db_cursor, "patients", "personal_id", int(personal_id))
+        show_patient_data(db_cursor, found_patient[0])
+        column_to_edit = input("Choose number of parameter which you want to edit: ")
+        name_of_col_to_edit = db_cursor.column_names[int(column_to_edit) - 1]
+        new_value = input(f"Provide new value for patients' {name_of_col_to_edit} : ")
+        HMS.edit_db_data(db, db_cursor, "patients", name_of_col_to_edit, "personal_id", personal_id, new_value)
+    except IndexError:
+        print("Provided value not found in database.")
+    except ValueError:
+        print("Provided value not found in database. Try again with numeric value.")
+
