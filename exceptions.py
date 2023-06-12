@@ -7,3 +7,8 @@ class InvalidInputValue(Exception):
 class InvalidPersonalId(Exception):
     """Raised when personal_id is not correct"""
     pass
+
+
+class DbNotExist(Exception):
+    """Raised when personal_id is not correct"""
+    pass

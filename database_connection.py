@@ -1,5 +1,20 @@
 import mysql.connector
+import database_management
 from getpass import getpass
+from exceptions import DbNotExist
+
+
+def db_connection_at_startup():
+    while True:
+        try:
+            db, db_cursor = create_db_connection()
+            database_management.create_tables_if_not_exists(db, db_cursor)
+            return db, db_cursor
+        except DbNotExist:
+            db_server, server_cursor = create_server_connection()
+            print("Creating 'basic_hms' database...")
+            database_management.create_db(server_cursor)
+            close_db_connection(db_server, server_cursor)
 
 
 def create_db_connection():
@@ -14,8 +29,8 @@ def create_db_connection():
     except mysql.connector.Error as e:
         print(e)
         if e.errno == 1049:
-            print(" Database does not exists in the server")
-            return False
+            print("Database does not exists in the server")
+            raise DbNotExist
     else:
         return hms_db, hms_db.cursor()
 

@@ -1,5 +1,4 @@
 import database_connection
-import database_management
 import exceptions
 import patient_management
 
@@ -47,7 +46,7 @@ def check_module_status(module_name):
             print("Incorrect value. Please respond with 'yes' or 'no' (or 'y' or 'n')")
 
 
-def choose_action():
+def choose_action(db, db_cursor):
     application_modules = {1: {"Patient Management": ["Register patient", "Find patient", "Edit patient"]}}
     print("Choose number of module:\n")
     for module_num in application_modules:
@@ -63,26 +62,23 @@ def choose_action():
                 print(submodule_num, submodule, sep=". ")
             user_action = int(input())
             if user_action == 1:
-                patient_management.register_patient()
+                patient_management.register_patient(db, db_cursor)
                 module_status = check_module_status(module_name)
             if user_action == 2:
-                patient_management.find_patient()
+                patient_management.find_patient(db_cursor)
                 module_status = check_module_status(module_name)
             if user_action == 3:
-                patient_management.edit_patient()
+                patient_management.edit_patient(db, db_cursor)
                 module_status = check_module_status(module_name)
 
 
 def main():
-    db_connection = database_connection.create_db_connection()
-    if not db_connection:
-        print("Hospital database doesn't exist. Creating 'basic_hms' database...")
-        database_management.create_db()
-    database_management.create_tables_if_not_exists()
+    db, db_cursor = database_connection.db_connection_at_startup()
     app_status = "running"
     while app_status == "running":
-        choose_action()
+        choose_action(db, db_cursor)
         app_status = check_app_status()
+    database_connection.close_db_connection(db, db_cursor)
 
 
 if __name__ == "__main__":
