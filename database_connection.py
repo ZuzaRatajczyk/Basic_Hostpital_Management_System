@@ -36,7 +36,7 @@ def create_db_connection():
 
 
 def create_server_connection():
-    print("Connecting to hospital database server...")
+    print("Connecting to database server...")
     try:
         mysql_server = mysql.connector.connect(
             host="127.0.0.1",
