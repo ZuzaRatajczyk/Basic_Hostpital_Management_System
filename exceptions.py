@@ -12,3 +12,8 @@ class InvalidPersonalId(Exception):
 class DbNotExist(Exception):
     """Raised when personal_id is not correct"""
     pass
+
+
+class WrongCredentials(Exception):
+    """Raised when database credentials are not correct"""
+    pass

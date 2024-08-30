@@ -1,7 +1,7 @@
 import mysql.connector
 import database_management
 from getpass import getpass
-from exceptions import DbNotExist
+from exceptions import DbNotExist, WrongCredentials
 
 
 def db_connection_at_startup():
@@ -31,6 +31,9 @@ def create_db_connection():
         if e.errno == 1049:
             print("Database does not exists in the server")
             raise DbNotExist
+        if e.errno == 1045:
+            print("Wrong credentials.")
+            raise WrongCredentials
     else:
         return hms_db, hms_db.cursor()
 
