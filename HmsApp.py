@@ -44,7 +44,7 @@ class HmsApp:
         module_number = int(input())
         if module_number == 1:
             module_name = "Patient Management"
-            patient_management = PatientManagement()  # TODO tutaj tworzymy nowy kursor co jest bezsensu
+            patient_management = self.HmsDb.patients_management
             self.is_module_running = True
             while self.is_module_running:
                 print("Choose number of action:")

@@ -1,11 +1,15 @@
-from HmsDatabaseOperations import HmsDatabaseOperations
 from operator import itemgetter
 from datetime import date
 from exceptions import InvalidPersonalId
 from dateutil.relativedelta import relativedelta
+from HmsDatabaseOperations import HmsDatabaseOperations
 
 
-class PatientManagement(HmsDatabaseOperations):
+class PatientManagement:
+
+    def __init__(self, db, db_cursor):
+        self.db, self.db_cursor = db, db_cursor
+        self.basic_database_operations = HmsDatabaseOperations(self.db, self.db_cursor)
 
     @staticmethod
     def get_patient_data_from_user():
@@ -65,7 +69,7 @@ class PatientManagement(HmsDatabaseOperations):
     def find_patient(self):
         try:
             personal_id_val = input("Patients' personal id: ")
-            found_patient = self.find_item_in_db("patients", "personal_id", int(personal_id_val))
+            found_patient = self.basic_database_operations.find_item_in_db("patients", "personal_id", int(personal_id_val))
             self.show_patient_data(found_patient[0])
         except IndexError:
             print("Patient not found.")
@@ -75,12 +79,12 @@ class PatientManagement(HmsDatabaseOperations):
     def edit_patient(self):
         try:
             personal_id = input("Patients' personal id: ")
-            found_patient = self.find_item_in_db("patients", "personal_id", int(personal_id))
+            found_patient = self.basic_database_operations.find_item_in_db("patients", "personal_id", int(personal_id))
             self.show_patient_data(found_patient[0])
             column_to_edit = input("Choose number of parameter which you want to edit: ")
             name_of_col_to_edit = self.db_cursor.column_names[int(column_to_edit) - 1]
             new_value = input(f"Provide new value for patients' {name_of_col_to_edit} : ")
-            self.edit_db_data("patients", name_of_col_to_edit, "personal_id", personal_id, new_value)
+            self.basic_database_operations.edit_db_data("patients", name_of_col_to_edit, "personal_id", personal_id, new_value)
         except IndexError:
             print("Provided value not found in database.")
         except ValueError:

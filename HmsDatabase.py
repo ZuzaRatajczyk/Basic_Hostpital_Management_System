@@ -1,6 +1,7 @@
 import mysql.connector
 from getpass import getpass
 from exceptions import DbNotExist, WrongCredentials
+from PatientManagement import PatientManagement
 
 
 class HmsDatabase:
@@ -8,6 +9,7 @@ class HmsDatabase:
     def __init__(self):
         self.db, self.db_cursor = self.db_connection_at_startup()
         self.create_tables_if_not_exists()  # TODO sprawdzić czy ta metoda weryfikuje istnienie tebel
+        self.patients_management = PatientManagement(self.db, self.db_cursor)
 
     def db_connection_at_startup(self):
         while True:

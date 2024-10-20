@@ -1,7 +1,9 @@
-from HmsDatabase import HmsDatabase
 
 
-class HmsDatabaseOperations(HmsDatabase):
+class HmsDatabaseOperations:
+
+    def __init__(self, db, db_cursor):
+        self.db, self.db_cursor = db, db_cursor
 
     def find_item_in_db(self, table, column_name, value):
         select_query = f"SELECT * FROM {table} WHERE {column_name} = %s"
