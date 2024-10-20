@@ -8,25 +8,25 @@ class HmsDatabase:
     """Class for HMS database."""
 
     def __init__(self):
-        self.db, self.db_cursor = self.db_connection_at_startup()
-        self.create_tables_if_not_exists()
+        self.db, self.db_cursor = self._db_connection_at_startup()
+        self._create_tables_if_not_exists()
         self.patients_management = PatientManagement(self.db, self.db_cursor)
 
-    def db_connection_at_startup(self):
+    def _db_connection_at_startup(self):
         """Method for database connection at application startup. If database does not exists it is created"""
         while True:
             try:
-                db, db_cursor = self.create_db_connection()
+                db, db_cursor = self._create_db_connection()
                 return db, db_cursor
             except DbNotExist:
-                db_server, server_cursor = self.create_server_connection()
+                db_server, server_cursor = self._create_server_connection()
                 print("Creating 'basic_hms' database...")
-                self.create_db(server_cursor)
+                self._create_db(server_cursor)
                 server_cursor.close()
                 db_server.close()
 
     @staticmethod
-    def create_server_connection():
+    def _create_server_connection():
         print("Connecting to database server...")
         try:
             mysql_server = mysql.connector.connect(
@@ -40,7 +40,7 @@ class HmsDatabase:
             return mysql_server, mysql_server.cursor()
 
     @staticmethod
-    def create_db_connection():
+    def _create_db_connection():
         print("Connecting to hospital database server...")
         try:
             hms_db = mysql.connector.connect(
@@ -61,12 +61,12 @@ class HmsDatabase:
             return hms_db, hms_db.cursor()
 
     @staticmethod
-    def create_db(server_cursor):
+    def _create_db(server_cursor):
         create_db_query = "CREATE DATABASE basic_hms"
         server_cursor.execute(create_db_query)
         print("Hospital 'basic_hms' database created.")
 
-    def create_tables_if_not_exists(self):
+    def _create_tables_if_not_exists(self):
         patients_table = "CREATE TABLE IF NOT EXISTS patients " \
                          "(patient_id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), surname VARCHAR(255), age INT, " \
                          "ward VARCHAR(255), room_num INT, bed_num INT, main_doctor VARCHAR(255), personal_id BIGINT)"
