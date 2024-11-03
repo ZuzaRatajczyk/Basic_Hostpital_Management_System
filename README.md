@@ -9,7 +9,7 @@ Before execution:
 - run MySQL server 
 
 To run program execute command:
-    python .\HMS.py
+    'python .\HMS.py'
 Program will ask you to choose which module and action you want to use.
 
 
