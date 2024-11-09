@@ -1,6 +1,8 @@
 import sys
 import os
 
+import pytest
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
@@ -10,6 +12,15 @@ from HmsDatabase import HmsDatabase
 
 
 class TestHmsDatabase:
+
+    @staticmethod
+    @pytest.fixture
+    @patch("HmsDatabase.PatientManagement")
+    @patch("HmsDatabase.HmsDatabase._create_tables_if_not_exists")
+    @patch("HmsDatabase.HmsDatabase._db_connection_at_startup")
+    def hms_database_obj(mocked_connection, _, __):
+        mocked_connection.return_value = MagicMock(), MagicMock()
+        return HmsDatabase()
 
     @staticmethod
     @patch("HmsDatabase.PatientManagement")
@@ -22,3 +33,10 @@ class TestHmsDatabase:
         mocked_create_tables.assert_called_once()
         mocked_pm.called_once_with(db_obj.db, db_obj.db_cursor)
         assert mocked_pm.return_value == db_obj.patients_management
+
+    @patch("HmsDatabase.HmsDatabase._create_db_connection")
+    def test_db_connection_at_startup(self, mocked_connection, hms_database_obj):
+        mocked_connection.return_value = MagicMock(), MagicMock()
+        db, db_cursor = hms_database_obj._db_connection_at_startup()
+        assert mocked_connection.called_once()
+        assert db, db_cursor == mocked_connection.return_value
