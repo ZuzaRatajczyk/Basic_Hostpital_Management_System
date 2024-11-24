@@ -9,6 +9,7 @@ sys.path.append(parent_dir)
 
 from unittest.mock import patch, MagicMock
 from HmsDatabase import HmsDatabase
+from exceptions import DbNotExist
 
 
 class TestHmsDatabase:
@@ -40,3 +41,12 @@ class TestHmsDatabase:
         db, db_cursor = hms_database_obj._db_connection_at_startup()
         assert mocked_connection.called_once()
         assert db, db_cursor == mocked_connection.return_value
+
+    @patch("HmsDatabase.HmsDatabase._create_server_connection", return_value=(MagicMock(), MagicMock()))
+    @patch("HmsDatabase.HmsDatabase._create_db")
+    def test_db_connection_at_startup_negative(self, mocked_create_db, mocked_connection, hms_database_obj):
+        hms_database_obj._create_db_connection = MagicMock(side_effect=DbNotExist())
+        hms_database_obj._db_connection_at_startup()
+        mocked_connection.assert_called_once()
+        mocked_create_db.assert_called_once_with(mocked_connection.return_value[1])
+

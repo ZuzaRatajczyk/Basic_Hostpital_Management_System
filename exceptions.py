@@ -10,7 +10,7 @@ class InvalidPersonalId(Exception):
 
 
 class DbNotExist(Exception):
-    """Raised when personal_id is not correct"""
+    """Raised when database does not exists"""
     pass
 
 

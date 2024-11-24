@@ -14,16 +14,15 @@ class HmsDatabase:
 
     def _db_connection_at_startup(self):
         """Method for database connection at application startup. If database does not exists it is created"""
-        while True:
-            try:
-                db, db_cursor = self._create_db_connection()
-                return db, db_cursor
-            except DbNotExist:
-                db_server, server_cursor = self._create_server_connection()
-                print("Creating 'basic_hms' database...")
-                self._create_db(server_cursor)
-                server_cursor.close()
-                db_server.close()
+        try:
+            db, db_cursor = self._create_db_connection()
+            return db, db_cursor
+        except DbNotExist:
+            db_server, server_cursor = self._create_server_connection()
+            print("Creating 'basic_hms' database...")
+            self._create_db(server_cursor)
+            server_cursor.close()
+            db_server.close()
 
     @staticmethod
     def _create_server_connection():
@@ -52,11 +51,9 @@ class HmsDatabase:
         except mysql.connector.Error as e:
             print(e)
             if e.errno == 1049:
-                print("Database does not exists in the server")
-                raise DbNotExist
+                raise DbNotExist("Database does not exists in the server")
             if e.errno == 1045:
-                print("Wrong credentials.")
-                raise WrongCredentials
+                raise WrongCredentials("Wrong credentials.")
         else:
             return hms_db, hms_db.cursor()
 
