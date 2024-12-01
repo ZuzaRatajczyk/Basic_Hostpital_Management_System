@@ -50,3 +50,11 @@ class TestHmsDatabase:
         mocked_connection.assert_called_once()
         mocked_create_db.assert_called_once_with(mocked_connection.return_value[1])
 
+    @patch("HmsDatabase.mysql.connector.connect")
+    @patch("HmsDatabase.getpass")
+    @patch("builtins.input")
+    def test_create_server_connection(self, mocked_connect, mocked_getpass, mocked_input, hms_database_obj):
+        hms_database_obj._create_server_connection()
+        mocked_connect.assert_called_once()
+        mocked_input.assert_called_once()
+        mocked_getpass.assert_called_once()
