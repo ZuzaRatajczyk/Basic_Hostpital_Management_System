@@ -51,10 +51,45 @@ class TestHmsDatabase:
         mocked_create_db.assert_called_once_with(mocked_connection.return_value[1])
 
     @patch("HmsDatabase.mysql.connector.connect")
-    @patch("HmsDatabase.getpass")
-    @patch("builtins.input")
-    def test_create_server_connection(self, mocked_connect, mocked_getpass, mocked_input, hms_database_obj):
-        hms_database_obj._create_server_connection()
-        mocked_connect.assert_called_once()
+    @patch("HmsDatabase.getpass", return_value="pass123")
+    @patch("builtins.input", return_value="user123")
+    def test_create_server_connection(self, mocked_input, mocked_getpass, mocked_connect, hms_database_obj):
+        server, server_cursor = hms_database_obj._create_server_connection()
+        mocked_connect.assert_called_once_with(
+            host="127.0.0.1", user="user123", password="pass123"
+        )
         mocked_input.assert_called_once()
         mocked_getpass.assert_called_once()
+        assert server == mocked_connect.return_value
+        assert server_cursor == mocked_connect.return_value.cursor()
+
+    @patch("HmsDatabase.mysql.connector.connect")
+    @patch("HmsDatabase.getpass", return_value="pass123")
+    @patch("builtins.input", return_value="user123")
+    def test_create_db_connection(self, mocked_input, mocked_getpass, mocked_connect, hms_database_obj):
+        hms_db, hms_cursor = hms_database_obj._create_db_connection()
+        mocked_connect.assert_called_once_with(
+            host="127.0.0.1", user="user123", password="pass123", database="basic_hms"
+        )
+        mocked_input.assert_called_once()
+        mocked_getpass.assert_called_once()
+        assert hms_db == mocked_connect.return_value
+        assert hms_cursor == mocked_connect.return_value.cursor()
+
+    @patch("HmsDatabase.HmsDatabase._create_server_connection", return_value=(MagicMock(), MagicMock()))
+    def test_create_db(self, mocked_server_conn, hms_database_obj):
+        hms_database_obj._create_db(mocked_server_conn.return_value[0])
+        mocked_server_conn.return_value[0].execute.assert_called_once_with("CREATE DATABASE basic_hms")
+
+    def test_create_tables_if_not_exists(self, hms_database_obj):
+        hms_database_obj._create_tables_if_not_exists()
+        hms_database_obj.db_cursor.execute.assert_called()
+        hms_database_obj.db.commit.assert_called_once()
+
+    def test_close_db_connection(self, hms_database_obj):
+        hms_database_obj.close_db_connection()
+        hms_database_obj.db.close.assert_called_once()
+        hms_database_obj.db_cursor.close.assert_called_once()
+
+
+
