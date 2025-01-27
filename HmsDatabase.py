@@ -2,6 +2,7 @@ import mysql.connector
 from getpass import getpass
 from exceptions import DbNotExist, WrongCredentials
 from PatientManagement import PatientManagement
+from DoctorManagement import DoctorManagement
 
 
 class HmsDatabase:
@@ -11,6 +12,7 @@ class HmsDatabase:
         self.db, self.db_cursor = self._db_connection_at_startup()
         self._create_tables_if_not_exists()
         self.patients_management = PatientManagement(self.db, self.db_cursor)
+        self.doctors_management = DoctorManagement(self.db, self.db_cursor)
 
     def _db_connection_at_startup(self):
         """Method for database connection at application startup. If database does not exists it is created"""

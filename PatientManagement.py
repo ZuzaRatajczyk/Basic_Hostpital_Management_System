@@ -8,6 +8,7 @@ from HmsDatabaseOperations import HmsDatabaseOperations
 class PatientManagement:
 
     def __init__(self, db, db_cursor):
+        self.module_name = "Patient Management"
         self.db, self.db_cursor = db, db_cursor
         self.basic_database_operations = HmsDatabaseOperations(self.db, self.db_cursor)
 
